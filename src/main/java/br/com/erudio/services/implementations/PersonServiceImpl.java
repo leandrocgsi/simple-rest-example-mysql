@@ -2,10 +2,14 @@ package br.com.erudio.services.implementations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.erudio.models.Person;
 import br.com.erudio.services.PersonService;
@@ -14,58 +18,69 @@ import br.com.erudio.services.PersonService;
 public class PersonServiceImpl implements PersonService {
 	
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class);
+	
+    @PersistenceContext
+    protected EntityManager entityManager;
     
-    private final AtomicLong counter = new AtomicLong();
-
     @Override
+    @Transactional
     public Person create(Person person) {
-    	logger.info("Creating a person");
-        Person createdPerson = person;
-        createdPerson.setIdPerson(counter.incrementAndGet());
-		return createdPerson;
+    	try {
+    		logger.info("Creating a person");
+			person = entityManager.merge(person);
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		return person;
     }
 
     @Override
     public Person findById(String personId) {
     	logger.info("Finding a person by ID");
-        Person person = new Person();
-        person.setIdPerson(Long.parseLong(personId));
-        person.setFirstName("Leandro");
-        person.setLastName("Costa");
-        person.setAddress("Uberlândia - Minas Gerais - Brasil");
+    	Person person = new Person();
+		try {
+    		logger.info("Finding all persons");
+    		person = entityManager.find(Person.class, Long.parseLong(personId));
+		} catch (Exception e) {
+			logger.error(e);
+		}
         return person;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public List<Person> findAll() {
-    	logger.info("Finding all persons");
         ArrayList<Person> persons = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            Person person = mockPerson();
-            persons.add(person);
-        }
+    	try {
+    		logger.info("Finding all persons");
+            Query query = entityManager.createQuery("from Person p");
+            persons = (ArrayList<Person>) query.getResultList();
+		} catch (Exception e) {
+			logger.error(e);
+		}
         return persons;
-    }
-
-    private Person mockPerson() {
-    	long id = counter.incrementAndGet();
-    	
-        Person person = new Person();
-		person.setIdPerson(id);
-        person.setFirstName("Person Name " + id);
-        person.setLastName("Last Name " + id);
-        person.setAddress("Some Address in Brasil " + id);
-        return person;
     }
     
     @Override
+    @Transactional
     public Person update(Person person) {
-    	logger.info("Updating a person");
-    	return person;
+    	try {
+    		logger.info("Updating a person");
+			person = entityManager.merge(person);
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		return person;
     }
 
     @Override
+    @Transactional
     public void delete(String personId) {
-    	logger.info("Deleting a person");
+		try {
+			logger.info("Deleting a person");
+			entityManager.remove(Long.parseLong(personId));
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
     }
 }
