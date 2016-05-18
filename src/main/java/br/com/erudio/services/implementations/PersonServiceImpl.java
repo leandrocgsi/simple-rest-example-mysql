@@ -78,7 +78,8 @@ public class PersonServiceImpl implements PersonService {
     public void delete(String personId) {
 		try {
 			logger.info("Deleting a person");
-			entityManager.remove(Long.parseLong(personId));
+			Person person = findById(Long.parseLong(personId));
+			entityManager.remove(person);
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
