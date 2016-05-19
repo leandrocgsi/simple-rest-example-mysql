@@ -77,7 +77,8 @@ public class PersonController {
 	@ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{personId}", method = RequestMethod.DELETE)
     public void delete(@PathVariable(value = "personId") String personId){
-        personService.delete(personId);
+		Person person = personService.findById(personId);
+        personService.delete(person);
     }
 
 	private void addHATEOASSupport(Person person, String idPerson) {

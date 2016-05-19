@@ -75,10 +75,10 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
-    public void delete(String personId) {
+    public void delete(Person person) {
 		try {
 			logger.info("Deleting a person");
-			entityManager.remove(Long.parseLong(personId));
+			entityManager.remove(person);
 		} catch (Exception ex) {
 			logger.error(ex);
 		}

@@ -10,6 +10,6 @@ public interface PersonService {
     Person findById(final String personId);
     List<Person> findAll();
     Person update(Person person);
-    void delete(final String personId);
+    void delete(Person person);
 
 }
